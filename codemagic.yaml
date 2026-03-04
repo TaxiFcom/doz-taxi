@@ -6,6 +6,10 @@ workflows:
     environment:
       flutter: stable
     scripts:
+      - name: Generate Android project files
+        script: |
+          cd packages/doz_rider
+          flutter create --org taxi.doz .
       - name: Get dependencies
         script: |
           cd packages/doz_rider
