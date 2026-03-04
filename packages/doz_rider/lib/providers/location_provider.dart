@@ -12,6 +12,10 @@ class LocationProvider extends ChangeNotifier {
   bool get isLoading => _loading;
   String? get error => _error;
 
+  /// Convenience getters used by map widgets.
+  double get lat => _position?.latitude ?? AppConstants.defaultLat;
+  double get lng => _position?.longitude ?? AppConstants.defaultLng;
+
   Future<void> requestPermission() async {
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
@@ -38,8 +42,4 @@ class LocationProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-
-  LatLng? get latLng => _position == null
-      ? null
-      : LatLng(_position!.latitude, _position!.longitude);
 }
