@@ -9,7 +9,8 @@ workflows:
       - name: Generate Android project files
         script: |
           cd packages/doz_rider
-          flutter create --org taxi.doz .
+          rm -rf android
+          flutter create --org taxi.doz --platforms android .
       - name: Get dependencies
         script: |
           cd packages/doz_rider
