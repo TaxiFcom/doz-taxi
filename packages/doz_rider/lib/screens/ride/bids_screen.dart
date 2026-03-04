@@ -159,7 +159,7 @@ class _BidsScreenState extends State<BidsScreen> {
                                   itemBuilder: (_, i) => BidCard(
                                     bid: bids[i],
                                     suggestedPrice:
-                                        rideProvider.suggestedPrice,
+                                        rideProvider.offeredPrice ?? 3.0,
                                     onAccept: () => _acceptBid(bids[i]),
                                     onReject: () => _rejectBid(bids[i]),
                                   ),

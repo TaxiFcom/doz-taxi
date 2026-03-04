@@ -80,7 +80,7 @@ class _RidesListScreenState extends State<RidesListScreen>
           ],
         ),
       ),
-      body: rideProvider.historyLoading
+      body: rideProvider.isLoading
           ? const Center(child: DozLoading())
           : TabBarView(
               controller: _tabController,
