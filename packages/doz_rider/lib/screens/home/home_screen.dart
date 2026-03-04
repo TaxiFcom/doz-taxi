@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<LocationProvider>().requestPermission().then((_) {
-        context.read<LocationProvider>().getCurrentLocation();
+        context.read<LocationProvider>().fetchCurrentLocation();
       });
       context.read<RideProvider>().loadVehicleTypes();
     });
@@ -222,7 +222,7 @@ class _LocationFab extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        context.read<LocationProvider>().getCurrentLocation();
+        context.read<LocationProvider>().fetchCurrentLocation();
       },
       child: Container(
         width: 44,
@@ -318,4 +318,3 @@ class _NavBarItem extends StatelessWidget {
     );
   }
 }
-

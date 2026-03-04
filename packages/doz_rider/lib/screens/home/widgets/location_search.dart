@@ -93,13 +93,13 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
       rideProvider.setDropoffLocation(location);
     }
 
-    if (!widget.isPickup && rideProvider.pickupLocation != null) {
+    if (!widget.isPickup && rideProvider.pickup != null) {
       context.go(AppRoutes.confirmRide);
     } else if (!widget.isPickup) {
       final locationProv = context.read<LocationProvider>();
       rideProvider.setPickupLocation(LocationModel(
-        lat: locationProv.lat,
-        lng: locationProv.lng,
+        lat: locationProv.latLng?.latitude ?? 31.9539,
+        lng: locationProv.latLng?.longitude ?? 35.9106,
         address: 'موقعي الحالي',
         addressEn: 'My Current Location',
       ));
@@ -220,8 +220,8 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
                 final locProv = context.read<LocationProvider>();
                 final rideProvider = context.read<RideProvider>();
                 final location = LocationModel(
-                  lat: locProv.lat,
-                  lng: locProv.lng,
+                  lat: locProv.latLng?.latitude ?? 31.9539,
+                  lng: locProv.latLng?.longitude ?? 35.9106,
                   address: 'موقعي الحالي',
                   addressEn: 'My Current Location',
                 );
