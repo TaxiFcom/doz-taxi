@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DOZ Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../shared/styles.css">
+  <style>
+    /* ===== LOGIN ===== */
+    .login-page {
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0A1628 0%, #152238 100%);
+      padding: 20px;
+    }
+    .login-card {
+      background: var(--doz-surface);
+      border-radius: var(--doz-radius);
+      padding: 40px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: var(--doz-shadow-lg);
+      animation: fadeIn 0.4s ease-out;
+    }
+    .login-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+    .login-logo svg { flex-shrink: 0; }
+    .login-logo span {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--doz-primary);
+      letter-spacing: -0.5px;
+    }
+    .login-subtitle {
+      text-align: center;
+      color: var(--doz-text-2);
+      font-size: 0.875rem;
+      margin-bottom: 28px;
+    }
+    .login-error {
+      background: rgba(255,61,61,0.08);
+      color: var(--doz-danger);
+      padding: 10px 14px;
+      border-radius: var(--doz-radius-sm);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    /* ===== DASHBOARD LAYOUT ===== */
+    html.app-mode, html.app-mode body {
+      height: 100%;
+      overflow: hidden;
+    }
+    .app-shell {
+      display: flex;
+      height: 100%;
+      overflow: hidden;
+    }
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: 260px;
+      background: var(--doz-surface);
+      border-left: 1px solid var(--doz-border);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+    }
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 200;
+        transform: translateX(100%);
+        box-shadow: var(--doz-shadow-lg);
+      }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-overlay {
+        display: block !important;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 199;
+      }
+    }
+    .sidebar-overlay { display: none; }
+    .sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--doz-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sidebar-logo span {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--doz-primary);
+    }
+    .sidebar-close {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--doz-text-2);
+      padding: 4px;
+    }
+    @media (max-width: 768px) { .sidebar-close { display: block; } }
+    .nav-list {
+      list-style: none;
+      padding: 12px;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .nav-item { margin-bottom: 2px; }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: var(--doz-radius-sm);
+      color: var(--doz-text-2);
+      text-decoration: none;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s;
+      cursor: pointer;
+    }
+    .nav-link:hover { background: var(--doz-border); color: var(--doz-text); }
+    .nav-link.active { background: rgba(255,200,0,0.12); color: var(--doz-primary); }
+    .nav-link svg { flex-shrink: 0; }
+    .nav-section-title {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: var(--doz-text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 16px 12px 6px;
+    }
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid var(--doz-border);
+      flex-shrink: 0;
+    }
+    .admin-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: var(--doz-bg);
+      border-radius: var(--doz-radius-sm);
+      margin-bottom: 10px;
+    }
+    .admin-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--doz-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.875rem;
+      color: #000;
+      flex-shrink: 0;
+    }
+    .admin-info { flex: 1; min-width: 0; }
+    .admin-name {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--doz-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .admin-role {
+      font-size: 0.75rem;
+      color: var(--doz-text-3);
+    }
+    /* ===== MAIN CONTENT ===== */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .topbar {
+      height: 64px;
+      background: var(--doz-surface);
+      border-bottom: 1px solid var(--doz-border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .topbar-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--doz-text-2);
+      padding: 8px;
+    }
+    @media (max-width: 768px) { .topbar-menu-btn { display: block; } }
+    .topbar-title {
+      flex: 1;
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--doz-text);
+    }
+    .page-view {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: none;
+    }
+    .page-view.active { display: block; }
+    /* ===== STATS GRID ===== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--doz-surface);
+      border-radius: var(--doz-radius);
+      padding: 20px;
+      border: 1px solid var(--doz-border);
+    }
+    .stat-card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--doz-radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .stat-card-label {
+      font-size: 0.8125rem;
+      color: var(--doz-text-2);
+      margin-bottom: 4px;
+    }
+    .stat-card-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--doz-text);
+    }
+    /* ===== DATA TABLE ===== */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--doz-text);
+    }
+    .data-table-wrap {
+      background: var(--doz-surface);
+      border-radius: var(--doz-radius);
+      border: 1px solid var(--doz-border);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    .data-table th {
+      padding: 12px 16px;
+      text-align: right;
+      font-weight: 600;
+      color: var(--doz-text-2);
+      background: var(--doz-bg);
+      border-bottom: 1px solid var(--doz-border);
+      font-size: 0.8125rem;
+    }
+    .data-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--doz-border);
+      color: var(--doz-text);
+      vertical-align: middle;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: var(--doz-bg); }
+    /* ===== BADGES ===== */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-success { background: rgba(34,197,94,0.12); color: #22c55e; }
+    .badge-warning { background: rgba(255,200,0,0.12); color: #ffc800; }
+    .badge-danger  { background: rgba(255,61,61,0.12);  color: #ff3d3d; }
+    .badge-info    { background: rgba(96,165,250,0.12); color: #60a5fa; }
+    .badge-neutral { background: var(--doz-border); color: var(--doz-text-2); }
+    /* ===== FORMS ===== */
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--doz-text);
+      margin-bottom: 6px;
+    }
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--doz-bg);
+      border: 1px solid var(--doz-border);
+      border-radius: var(--doz-radius-sm);
+      color: var(--doz-text);
+      font-size: 0.9375rem;
+      font-family: inherit;
+      transition: border-color 0.15s;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--doz-primary);
+    }
+    .form-textarea { resize: vertical; min-height: 80px; }
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--doz-surface);
+      border-radius: var(--doz-radius);
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--doz-shadow-lg);
+      animation: fadeIn 0.2s ease-out;
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--doz-border);
+    }
+    .modal-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--doz-text);
+    }
+    .modal-body { padding: 24px; }
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 16px 24px;
+      border-top: 1px solid var(--doz-border);
+    }
+    /* ===== TOAST ===== */
+    #toast-container {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .toast {
+      background: var(--doz-surface);
+      border: 1px solid var(--doz-border);
+      border-radius: var(--doz-radius-sm);
+      padding: 12px 16px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--doz-text);
+      box-shadow: var(--doz-shadow-lg);
+      animation: fadeIn 0.2s ease-out;
+      pointer-events: auto;
+    }
+    .toast.success { border-color: #22c55e; color: #22c55e; }
+    .toast.error   { border-color: var(--doz-danger); color: var(--doz-danger); }
+    /* ===== FILTER BAR ===== */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .filter-bar .form-input { max-width: 220px; }
+    /* ===== DRIVER / RIDER CARD ===== */
+    .entity-card {
+      background: var(--doz-surface);
+      border: 1px solid var(--doz-border);
+      border-radius: var(--doz-radius);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+    .entity-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--doz-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.125rem;
+      color: #000;
+      flex-shrink: 0;
+    }
+    .entity-info { flex: 1; min-width: 0; }
+    .entity-name {
+      font-weight: 600;
+      color: var(--doz-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .entity-sub {
+      font-size: 0.8125rem;
+      color: var(--doz-text-3);
+    }
+    .entity-actions { display: flex; gap: 6px; }
+    /* ===== SETTINGS ===== */
+    .settings-section {
+      background: var(--doz-surface);
+      border-radius: var(--doz-radius);
+      padding: 24px;
+      border: 1px solid var(--doz-border);
+      margin-bottom: 24px;
+    }
+    .settings-title {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--doz-text);
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--doz-border);
+    }
+    .switch-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+    }
+    .switch-label { font-size: 0.9375rem; color: var(--doz-text); }
+    .switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .switch-thumb {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: var(--doz-border);
+      border-radius: 100px;
+      transition: 0.3s;
+    }
+    .switch-thumb::before {
+      content: '';
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      right: 3px;
+      bottom: 3px;
+      background: var(--doz-text-2);
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+    .switch input:checked + .switch-thumb { background: var(--doz-primary); }
+    .switch input:checked + .switch-thumb::before {
+      transform: translateX(-20px);
+      background: #000;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ===== LOGIN PAGE ===== -->
+<div class="login-page" id="loginPage">
+  <div class="login-card">
+    <div class="login-logo">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="40" height="40" rx="10" fill="#FFC800"/>
+        <path d="M10 28 L18 12 L22 20 L26 14 L30 28 Z" fill="#0A1628" stroke="none"/>
+        <circle cx="20" cy="20" r="3" fill="#FFC800"/>
+      </svg>
+      <span>DOZ</span>
+    </div>
+    <p class="login-subtitle" data-i18n="adminPanel">لوحة تحكم المشرف</p>
+    <div class="login-error" id="loginError"></div>
+    <div class="form-group">
+      <label class="form-label" data-i18n="email">البريد الإلكتروني</label>
+      <input type="email" class="form-input" id="loginEmail" autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label class="form-label" data-i18n="password">كلمة المرور</label>
+      <input type="password" class="form-input" id="loginPassword" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary btn-block" id="loginBtn" data-i18n="login">دخول</button>
+  </div>
+</div>
+
+<!-- ===== APP SHELL ===== -->
+<div class="app-shell" id="appShell" style="display:none">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <svg width="28" height="28" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="40" height="40" rx="10" fill="#FFC800"/>
+          <path d="M10 28 L18 12 L22 20 L26 14 L30 28 Z" fill="#0A1628" stroke="none"/>
+          <circle cx="20" cy="20" r="3" fill="#FFC800"/>
+        </svg>
+        <span>DOZ</span>
+      </div>
+      <button class="sidebar-close" id="sidebarClose">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <ul class="nav-list">
+      <li class="nav-item">
+        <a class="nav-link active" data-page="dashboard">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          <span data-i18n="dashboard">لوحة التحكم</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-page="trips">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+          <span data-i18n="trips">الرحلات</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-page="drivers">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <span data-i18n="drivers">السائقون</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-page="riders">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <span data-i18n="riders">الركاب</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-page="revenue">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span data-i18n="revenue">الإيرادات</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-page="settings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span data-i18n="settings">الإعدادات</span>
+        </a>
+      </li>
+    </ul>
+    <div class="sidebar-footer">
+      <div class="admin-badge">
+        <div class="admin-avatar">A</div>
+        <div class="admin-info">
+          <div class="admin-name" data-i18n="admin">المشرف</div>
+          <div class="admin-role">admin@doz.app</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-block" id="logoutBtn" data-i18n="logout">خروج</button>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menuBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <span class="topbar-title" id="topbarTitle" data-i18n="dashboard">لوحة التحكم</span>
+    </div>
+
+    <!-- ===== DASHBOARD PAGE ===== -->
+    <div class="page-view active" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background:rgba(255,200,0,0.12)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFC800" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+          </div>
+          <div class="stat-card-label" data-i18n="totalTrips">إجمالي الرحلات</div>
+          <div class="stat-card-value" id="statTotalTrips">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background:rgba(34,197,94,0.12)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div class="stat-card-label" data-i18n="totalRevenue">إجمالي الإيرادات</div>
+          <div class="stat-card-value" id="statTotalRevenue">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background:rgba(96,165,250,0.12)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          </div>
+          <div class="stat-card-label" data-i18n="totalDrivers">إجمالي السائقين</div>
+          <div class="stat-card-value" id="statTotalDrivers">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background:rgba(168,85,247,0.12)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          </div>
+          <div class="stat-card-label" data-i18n="totalRiders">إجمالي الركاب</div>
+          <div class="stat-card-value" id="statTotalRiders">-</div>
+        </div>
+      </div>
+
+      <!-- Recent Trips -->
+      <div class="section-header">
+        <h2 class="section-title" data-i18n="recentTrips">الرحلات الأخيرة</h2>
+      </div>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th data-i18n="tripId">#</th>
+              <th data-i18n="rider">الراكب</th>
+              <th data-i18n="driver">السائق</th>
+              <th data-i18n="fare">الأجرة</th>
+              <th data-i18n="status">الحالة</th>
+              <th data-i18n="date">التاريخ</th>
+            </tr>
+          </thead>
+          <tbody id="dashTripsTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== TRIPS PAGE ===== -->
+    <div class="page-view" id="page-trips">
+      <div class="filter-bar">
+        <input type="text" class="form-input" id="tripSearch" placeholder="بحث..." data-i18n-placeholder="search">
+        <select class="form-select" id="tripStatusFilter" style="max-width:160px">
+          <option value="" data-i18n="allStatuses">كل الحالات</option>
+          <option value="completed" data-i18n="completed">مكتملة</option>
+          <option value="cancelled" data-i18n="cancelled">ملغاة</option>
+          <option value="active" data-i18n="active">نشطة</option>
+        </select>
+      </div>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th data-i18n="rider">الراكب</th>
+              <th data-i18n="driver">السائق</th>
+              <th data-i18n="from">من</th>
+              <th data-i18n="to">إلى</th>
+              <th data-i18n="fare">الأجرة</th>
+              <th data-i18n="status">الحالة</th>
+              <th data-i18n="date">التاريخ</th>
+              <th data-i18n="actions">إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="tripsTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== DRIVERS PAGE ===== -->
+    <div class="page-view" id="page-drivers">
+      <div class="section-header">
+        <h2 class="section-title" data-i18n="drivers">السائقون</h2>
+        <button class="btn btn-primary" id="addDriverBtn" data-i18n="addDriver">+ إضافة سائق</button>
+      </div>
+      <div class="filter-bar">
+        <input type="text" class="form-input" id="driverSearch" placeholder="بحث...">
+      </div>
+      <div id="driversList"></div>
+    </div>
+
+    <!-- ===== RIDERS PAGE ===== -->
+    <div class="page-view" id="page-riders">
+      <div class="section-header">
+        <h2 class="section-title" data-i18n="riders">الركاب</h2>
+      </div>
+      <div class="filter-bar">
+        <input type="text" class="form-input" id="riderSearch" placeholder="بحث...">
+      </div>
+      <div id="ridersList"></div>
+    </div>
+
+    <!-- ===== REVENUE PAGE ===== -->
+    <div class="page-view" id="page-revenue">
+      <div class="section-header">
+        <h2 class="section-title" data-i18n="revenue">الإيرادات</h2>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-label" data-i18n="todayRevenue">إيرادات اليوم</div>
+          <div class="stat-card-value" id="revToday">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label" data-i18n="weekRevenue">إيرادات الأسبوع</div>
+          <div class="stat-card-value" id="revWeek">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label" data-i18n="monthRevenue">إيرادات الشهر</div>
+          <div class="stat-card-value" id="revMonth">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label" data-i18n="totalRevenue">الإيراد الكلي</div>
+          <div class="stat-card-value" id="revTotal">-</div>
+        </div>
+      </div>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th data-i18n="tripId">#</th>
+              <th data-i18n="driver">السائق</th>
+              <th data-i18n="fare">الأجرة</th>
+              <th data-i18n="commission">العمولة</th>
+              <th data-i18n="date">التاريخ</th>
+            </tr>
+          </thead>
+          <tbody id="revTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== SETTINGS PAGE ===== -->
+    <div class="page-view" id="page-settings">
+      <div class="settings-section">
+        <div class="settings-title" data-i18n="generalSettings">الإعدادات العامة</div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="baseFare">الأجرة الأساسية (ريال)</label>
+          <input type="number" class="form-input" id="settingBaseFare" min="0" step="0.5">
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="perKmFare">سعر الكيلومتر (ريال)</label>
+          <input type="number" class="form-input" id="settingPerKm" min="0" step="0.1">
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="commissionRate">نسبة العمولة (%)</label>
+          <input type="number" class="form-input" id="settingCommission" min="0" max="100">
+        </div>
+        <button class="btn btn-primary" id="saveSettingsBtn" data-i18n="saveSettings">حفظ الإعدادات</button>
+      </div>
+      <div class="settings-section">
+        <div class="settings-title" data-i18n="notifications">الإشعارات</div>
+        <div class="switch-wrap">
+          <span class="switch-label" data-i18n="emailNotifications">إشعارات البريد</span>
+          <label class="switch"><input type="checkbox" id="notifEmail" checked><span class="switch-thumb"></span></label>
+        </div>
+        <div class="switch-wrap">
+          <span class="switch-label" data-i18n="tripAlerts">تنبيهات الرحلات</span>
+          <label class="switch"><input type="checkbox" id="notifTrips" checked><span class="switch-thumb"></span></label>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /app-shell -->
+
+<!-- ADD DRIVER MODAL -->
+<div class="modal-overlay" id="addDriverModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" data-i18n="addDriver">إضافة سائق</span>
+      <button class="btn btn-ghost" onclick="App.closeModal('addDriverModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label" data-i18n="name">الاسم</label>
+        <input type="text" class="form-input" id="newDriverName">
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="phone">الهاتف</label>
+        <input type="tel" class="form-input" id="newDriverPhone">
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="email">البريد الإلكتروني</label>
+        <input type="email" class="form-input" id="newDriverEmail">
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="password">كلمة المرور</label>
+        <input type="password" class="form-input" id="newDriverPassword">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="App.closeModal('addDriverModal')" data-i18n="cancel">إلغاء</button>
+      <button class="btn btn-primary" id="saveDriverBtn" data-i18n="save">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const API = window.DOZ_API;
+
+const i18n = {
+  ar: {
+    dashboard: 'لوحة التحكم', trips: 'الرحلات', drivers: 'السائقون', riders: 'الركاب',
+    revenue: 'الإيرادات', settings: 'الإعدادات', totalTrips: 'إجمالي الرحلات',
+    totalRevenue: 'إجمالي الإيرادات', totalDrivers: 'إجمالي السائقين', totalRiders: 'إجمالي الركاب',
+    recentTrips: 'الرحلات الأخيرة', tripId: '#', rider: 'الراكب', driver: 'السائق',
+    fare: 'الأجرة', status: 'الحالة', date: 'التاريخ', from: 'من', to: 'إلى',
+    actions: 'إجراءات', allStatuses: 'كل الحالات', completed: 'مكتملة', cancelled: 'ملغاة',
+    active: 'نشطة', addDriver: 'إضافة سائق', name: 'الاسم', phone: 'الهاتف',
+    email: 'البريد الإلكتروني', password: 'كلمة المرور', cancel: 'إلغاء', save: 'حفظ',
+    edit: 'تعديل', delete: 'حذف', search: 'بحث', admin: 'المشرف', adminPanel: 'لوحة تحكم المشرف',
+    login: 'دخول', logout: 'خروج', todayRevenue: 'إيرادات اليوم', weekRevenue: 'إيرادات الأسبوع',
+    monthRevenue: 'إيرادات الشهر', totalRevenue2: 'الإيراد الكلي', commission: 'العمولة',
+    generalSettings: 'الإعدادات العامة', baseFare: 'الأجرة الأساسية (ريال)',
+    perKmFare: 'سعر الكيلومتر (ريال)', commissionRate: 'نسبة العمولة (%)',
+    saveSettings: 'حفظ الإعدادات', notifications: 'الإشعارات',
+    emailNotifications: 'إشعارات البريد', tripAlerts: 'تنبيهات الرحلات'
+  }
+};
+
+const App = {
+  token: null,
+  currentLang: 'ar',
+
+  init() {
+    const saved = localStorage.getItem('doz_admin_token');
+    if (saved) { this.token = saved; this.showApp(); }
+    this.applyI18n();
+    this.bindEvents();
+  },
+
+  applyI18n() {
+    const t = i18n[this.currentLang];
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.dataset.i18n;
+      if (t[key]) el.textContent = t[key];
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const key = el.dataset.i18nPlaceholder;
+      if (t[key]) el.placeholder = t[key];
+    });
+  },
+
+  bindEvents() {
+    document.getElementById('loginBtn').addEventListener('click', () => this.login());
+    document.getElementById('loginPassword').addEventListener('keydown', e => {
+      if (e.key === 'Enter') this.login();
+    });
+    document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
+    document.getElementById('menuBtn').addEventListener('click', () => this.openSidebar());
+    document.getElementById('sidebarClose').addEventListener('click', () => this.closeSidebar());
+    document.getElementById('sidebarOverlay').addEventListener('click', () => this.closeSidebar());
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        const page = link.dataset.page;
+        if (page) this.navigate(page);
+      });
+    });
+    document.getElementById('addDriverBtn').addEventListener('click', () =>
+      document.getElementById('addDriverModal').classList.add('open')
+    );
+    document.getElementById('saveDriverBtn').addEventListener('click', () => this.saveDriver());
+    document.getElementById('saveSettingsBtn').addEventListener('click', () => this.saveSettings());
+    document.getElementById('tripSearch').addEventListener('input', () => this.loadTrips());
+    document.getElementById('tripStatusFilter').addEventListener('change', () => this.loadTrips());
+    document.getElementById('driverSearch').addEventListener('input', () => this.loadDrivers());
+    document.getElementById('riderSearch').addEventListener('input', () => this.loadRiders());
+  },
+
+  async login() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass  = document.getElementById('loginPassword').value;
+    const errEl = document.getElementById('loginError');
+    errEl.style.display = 'none';
+    try {
+      const data = await API.post('/auth/admin/login', { email, password: pass });
+      this.token = data.token;
+      localStorage.setItem('doz_admin_token', this.token);
+      this.showApp();
+    } catch (e) {
+      errEl.textContent = e.message || 'خطأ في تسجيل الدخول';
+      errEl.style.display = 'block';
+    }
+  },
+
+  logout() {
+    this.token = null;
+    localStorage.removeItem('doz_admin_token');
+    document.getElementById('appShell').style.display = 'none';
+    document.getElementById('loginPage').style.display = 'flex';
+    document.documentElement.classList.remove('app-mode');
+  },
+
+  showApp() {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('appShell').style.display = 'flex';
+    document.documentElement.classList.add('app-mode');
+    this.navigate('dashboard');
+    this.loadSettings();
+  },
+
+  navigate(page) {
+    document.querySelectorAll('.page-view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    const view = document.getElementById('page-' + page);
+    if (view) view.classList.add('active');
+    const link = document.querySelector(`.nav-link[data-page="${page}"]`);
+    if (link) link.classList.add('active');
+    const t = i18n[this.currentLang];
+    document.getElementById('topbarTitle').textContent = t[page] || page;
+    this.closeSidebar();
+    if (page === 'dashboard') this.loadDashboard();
+    else if (page === 'trips')   this.loadTrips();
+    else if (page === 'drivers') this.loadDrivers();
+    else if (page === 'riders')  this.loadRiders();
+    else if (page === 'revenue') this.loadRevenue();
+  },
+
+  openSidebar()  { document.getElementById('sidebar').classList.add('open'); },
+  closeSidebar() { document.getElementById('sidebar').classList.remove('open'); },
+  closeModal(id) { document.getElementById(id).classList.remove('open'); },
+
+  toast(msg, type = 'success') {
+    const el = document.createElement('div');
+    el.className = 'toast ' + type;
+    el.textContent = msg;
+    document.getElementById('toast-container').appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+  },
+
+  headers() {
+    return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + this.token };
+  },
+
+  async loadDashboard() {
+    try {
+      const [stats, trips] = await Promise.all([
+        API.get('/admin/stats', this.headers()),
+        API.get('/admin/trips?limit=10', this.headers())
+      ]);
+      document.getElementById('statTotalTrips').textContent   = stats.totalTrips   ?? '-';
+      document.getElementById('statTotalRevenue').textContent = stats.totalRevenue  ? stats.totalRevenue.toFixed(2) + ' ﷼' : '-';
+      document.getElementById('statTotalDrivers').textContent = stats.totalDrivers  ?? '-';
+      document.getElementById('statTotalRiders').textContent  = stats.totalRiders   ?? '-';
+      this.renderTripsTable('dashTripsTbody', trips, false);
+    } catch(e) { this.toast(e.message, 'error'); }
+  },
+
+  async loadTrips() {
+    const q = document.getElementById('tripSearch').value.trim();
+    const s = document.getElementById('tripStatusFilter').value;
+    const qs = new URLSearchParams();
+    if (q) qs.set('q', q);
+    if (s) qs.set('status', s);
+    try {
+      const trips = await API.get('/admin/trips?' + qs, this.headers());
+      this.renderTripsTable('tripsTbody', trips, true);
+    } catch(e) { this.toast(e.message, 'error'); }
+  },
+
+  renderTripsTable(tbodyId, trips, showActions) {
+    const tbody = document.getElementById(tbodyId);
+    if (!trips.length) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--doz-text-3)">لا توجد رحلات</td></tr>'; return; }
+    tbody.innerHTML = trips.map(t => `
+      <tr>
+        <td>${t.id}</td>
+        <td>${t.rider_name || '-'}</td>
+        <td>${t.driver_name || '-'}</td>
+        ${showActions ? `<td>${t.pickup_address || '-'}</td><td>${t.dropoff_address || '-'}</td>` : ''}
+        <td>${t.fare ? t.fare.toFixed(2) + ' ﷼' : '-'}</td>
+        <td>${this.statusBadge(t.status)}</td>
+        <td>${new Date(t.created_at).toLocaleDateString('ar')}</td>
+        ${showActions ? `<td><button class="btn btn-ghost" onclick="App.viewTrip(${t.id})">عرض</button></td>` : ''}
+      </tr>
+    `).join('');
+  },
+
+  statusBadge(s) {
+    const map = { completed: 'success', cancelled: 'danger', active: 'warning', pending: 'info' };
+    return `<span class="badge badge-${map[s]||'neutral'}">${s}</span>`;
+  },
+
+  async loadDrivers() {
+    const q = document.getElementById('driverSearch').value.trim();
+    try {
+      const drivers = await API.get('/admin/drivers' + (q ? '?q='+encodeURIComponent(q) : ''), this.headers());
+      const list = document.getElementById('driversList');
+      if (!drivers.length) { list.innerHTML = '<p style="color:var(--doz-text-3)">لا يوجد سائقون</p>'; return; }
+      list.innerHTML = drivers.map(d => `
+        <div class="entity-card">
+          <div class="entity-avatar">${(d.name||'?')[0].toUpperCase()}</div>
+          <div class="entity-info">
+            <div class="entity-name">${d.name}</div>
+            <div class="entity-sub">${d.phone || ''} · ${this.statusBadge(d.is_active ? 'active' : 'cancelled')}</div>
+          </div>
+          <div class="entity-actions">
+            <button class="btn btn-ghost" onclick="App.toggleDriver(${d.id}, ${!d.is_active})">${d.is_active ? 'تعطيل' : 'تفعيل'}</button>
+            <button class="btn btn-danger" onclick="App.deleteDriver(${d.id})">حذف</button>
+          </div>
+        </div>
+      `).join('');
+    } catch(e) { this.toast(e.message, 'error'); }
+  },
+
+  async loadRiders() {
+    const q = document.getElementById('riderSearch').value.trim();
+    try {
+      const riders = await API.get('/admin/riders' + (q ? '?q='+encodeURIComponent(q) : ''), this.headers());
+      const list = document.getElementById('ridersList');
+      if (!riders.length) { list.innerHTML = '<p style="color:var(--doz-text-3)">لا يوجد ركاب</p>'; return; }
+      list.innerHTML = riders.map(r => `
+        <div class="entity-card">
+          <div class="entity-avatar">${(r.name||'?')[0].toUpperCase()}</div>
+          <div class="entity-info">
+            <div class="entity-name">${r.name}</div>
+            <div class="entity-sub">${r.phone || ''}</div>
+          </div>
+        </div>
+      `).join('');
+    } catch(e) { this.toast(e.message, 'error'); }
+  },
+
+  async loadRevenue() {
+    try {
+      const rev = await API.get('/admin/revenue', this.headers());
+      document.getElementById('revToday').textContent  = rev.today  ? rev.today.toFixed(2)  + ' ﷼' : '-';
+      document.getElementById('revWeek').textContent   = rev.week   ? rev.week.toFixed(2)   + ' ﷼' : '-';
+      document.getElementById('revMonth').textContent  = rev.month  ? rev.month.toFixed(2)  + ' ﷼' : '-';
+      document.getElementById('revTotal').textContent  = rev.total  ? rev.total.toFixed(2)  + ' ﷼' : '-';
+      const tbody = document.getElementById('revTbody');
+      tbody.innerHTML = (rev.transactions||[]).map(t => `
+        <tr>
+          <td>${t.trip_id}</td>
+          <td>${t.driver_name||'-'}</td>
+          <td>${t.fare ? t.fare.toFixed(2) + ' ﷼' : '-'}</td>
+          <td>${t.commission ? t.commission.toFixed(2) + ' ﷼' : '-'}</td>
+          <td>${new Date(t.created_at).toLocaleDateString('ar')}</td>
+        </tr>
+      `).join('');
+    } catch(e) { this.toast(e.message, 'error'); }
+  },
+
+  async saveDriver() {
+    const body = {
+      name:     document.getElementById('newDriverName').value.trim(),
+      phone:    document.getElementById('newDriverPhone').value.trim(),
+      email:    document.getElementById('newDriverEmail').value.trim(),
+      password: document.getElementById('newDriverPassword').value
+    };
+    if (!body.name || !body.email || !body.password) {
+      this.toast('يرجى ملء جميع الحقول', 'error'); return;
+    }
+    try {
+      await API.post('/admin/drivers', body, this.headers());
+      this.toast('تم إضافة السائق');
+      this.closeModal('addDriverModal');
+      this.loadDrivers();
+    } catch(e) { this.toast(e.message, 'error'); }
+  },
+
+  async toggleDriver(id, activate) {
+    try {
+      await API.put(`/admin/drivers/${id}`, { is_active: activate }, this.headers());
+      this.toast(activate ? 'تم تفعيل السائق' : 'تم تعطيل السائق');
+      this.loadDrivers();
+    } catch(e) { this.toast(e.message, 'error'); }
+  },
+
+  async deleteDriver(id) {
+    if (!confirm('هل أنت متأكد من حذف هذا السائق؟')) return;
+    try {
+      await API.delete(`/admin/drivers/${id}`, this.headers());
+      this.toast('تم حذف السائق');
+      this.loadDrivers();
+    } catch(e) { this.toast(e.message, 'error'); }
+  },
+
+  async loadSettings() {
+    try {
+      const s = await API.get('/admin/settings', this.headers());
+      document.getElementById('settingBaseFare').value   = s.base_fare   ?? '';
+      document.getElementById('settingPerKm').value      = s.per_km_fare ?? '';
+      document.getElementById('settingCommission').value = s.commission_rate ?? '';
+    } catch(e) {}
+  },
+
+  async saveSettings() {
+    const body = {
+      base_fare:        parseFloat(document.getElementById('settingBaseFare').value),
+      per_km_fare:      parseFloat(document.getElementById('settingPerKm').value),
+      commission_rate:  parseFloat(document.getElementById('settingCommission').value)
+    };
+    try {
+      await API.put('/admin/settings', body, this.headers());
+      this.toast('تم حفظ الإعدادات');
+    } catch(e) { this.toast(e.message, 'error'); }
+  },
+
+  viewTrip(id) {
+    this.toast('Trip #' + id + ' details (coming soon)', 'info');
+  }
+};
+
+document.getElementById('sidebarOverlay').addEventListener('click', () => App.closeSidebar());
+
+// Init
+App.init();
+</script>
+</body>
+</html>
