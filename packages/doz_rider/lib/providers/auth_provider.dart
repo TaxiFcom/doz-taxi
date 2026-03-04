@@ -10,11 +10,19 @@ class AuthProvider extends ChangeNotifier {
   UserModel? _user;
   bool _loading = false;
   String? _error;
+  Locale _locale = const Locale('ar');
 
   UserModel? get user => _user;
   bool get isLoading => _loading;
   String? get error => _error;
   bool get isAuthenticated => _user != null;
+  Locale get locale => _locale;
+
+  /// Change the app locale (used by SettingsScreen).
+  void setLocale(String langCode) {
+    _locale = Locale(langCode);
+    notifyListeners();
+  }
 
   Future<bool> sendOtp(String phone, String countryCode) async {
     _loading = true;

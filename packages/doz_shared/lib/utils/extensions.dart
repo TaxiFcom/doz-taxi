@@ -66,6 +66,9 @@ extension DozDateTimeExtensions on DateTime {
 }
 
 /// Extension methods on [BuildContext].
+///
+/// NOTE: Navigation extensions (push, pop, pushReplacement) are intentionally
+/// omitted to avoid conflicts with go_router's own extension methods.
 extension DozContextExtensions on BuildContext {
   Size get screenSize => MediaQuery.of(this).size;
   double get screenWidth => MediaQuery.of(this).size.width;
@@ -110,19 +113,6 @@ extension DozContextExtensions on BuildContext {
       ),
     );
   }
-
-  Future<T?> pushReplacement<T>(Widget page) =>
-      Navigator.pushReplacement<T, void>(
-        this,
-        MaterialPageRoute(builder: (_) => page),
-      );
-
-  Future<T?> push<T>(Widget page) => Navigator.push<T>(
-        this,
-        MaterialPageRoute(builder: (_) => page),
-      );
-
-  void pop<T>([T? result]) => Navigator.pop<T>(this, result);
 }
 
 /// Extension methods on [RideStatus].
