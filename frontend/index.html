@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DOZ Taxi - تاكسي دوز</title>
+  <link rel="stylesheet" href="/shared/styles.css">
+  <style>
+    .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; text-align: center; padding: 2rem; }
+    .hero h1 { font-size: 3rem; font-weight: 800; margin-bottom: 1rem; }
+    .hero p { font-size: 1.2rem; opacity: 0.9; margin-bottom: 2rem; max-width: 500px; }
+    .hero-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-white { background: white; color: var(--primary); padding: 0.875rem 2rem; border-radius: var(--radius); font-weight: 700; font-size: 1rem; text-decoration: none; display: inline-block; transition: transform 0.2s; }
+    .btn-white:hover { transform: translateY(-2px); }
+    .btn-outline-white { border: 2px solid white; color: white; padding: 0.875rem 2rem; border-radius: var(--radius); font-weight: 700; font-size: 1rem; text-decoration: none; display: inline-block; transition: all 0.2s; }
+    .btn-outline-white:hover { background: white; color: var(--primary); }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <div>
+      <div style="font-size:4rem;margin-bottom:1rem">🚕</div>
+      <h1>DOZ Taxi</h1>
+      <p>منصة نقل ذكية - اعرض سعرك وسائقين يتنافسون لخدمتك</p>
+      <div class="hero-buttons">
+        <a href="/rider" class="btn-white">👤 تطبيق الراكب</a>
+        <a href="/driver" class="btn-outline-white">🚗 تطبيق السائق</a>
+        <a href="/admin" class="btn-outline-white">⚙️ لوحة التحكم</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

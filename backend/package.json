@@ -1,0 +1,14 @@
+{
+  "name": "doz-taxi-backend",
+  "version": "1.0.0",
+  "description": "DOZ Taxi - Professional Ride-Hailing API",
+  "main": "server.js",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "uuid": "^9.0.0",
+    "ws": "^8.16.0"
+  }
+}
