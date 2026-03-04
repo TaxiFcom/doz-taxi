@@ -116,4 +116,24 @@ abstract class DozColors {
     end: Alignment.bottomRight,
     colors: [Color(0xFF1F2937), Color(0xFF111827)],
   );
+
+  // ── Aliases (for screens that use short/generic names) ──────────────────────
+  
+  static const Color primary = primaryGreen;
+  static const Color primaryLight = primaryGreenLight;
+  static const Color secondary = info;
+  static const Color background = primaryDark;
+  static const Color surface = surfaceDark;
+  static const Color surfaceVariant = cardDark;
+  static const Color surfaceElevated = Color(0xFF2D3748);
+  static const Color border = borderDark;
+  static const Color divider = borderDarkSubtle;
+  static const Color textLight = textDisabled;
+  static const Color overlay = overlayDark;
+  static const Color gradientStart = primaryGreen;
+  static const Color gradientEnd = primaryGreenDark;
+  static const Color shimmerBase = surfaceDark;
+  static const Color shimmerHighlight = cardDark;
+  static const Color ratingStarActive = Color(0xFFFBBF24);
+  static const Color ratingStarInactive = borderDark;
 }

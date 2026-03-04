@@ -12,7 +12,6 @@ import 'app.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Lock to portrait mode
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -25,39 +24,22 @@ void main() async {
     systemNavigationBarIconBrightness: Brightness.light,
   ));
 
-  // Initialize services
   final storage = StorageService.getInstance();
   await storage.init();
 
   final api = ApiClient.getInstance(storage);
-  final authService = AuthService.getInstance(api, storage);
-
-  // Read saved locale
   final savedLocale = await storage.getLanguage() ?? 'ar';
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => AuthProvider(
-            api: api,
-            storage: storage,
-            authService: authService,
-            initialLocale: savedLocale,
-          ),
+          create: (_) => AuthProvider(api, storage: storage, initialLocale: savedLocale),
         ),
-        ChangeNotifierProvider(
-          create: (_) => RideProvider(api: api),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => BidsProvider(api: api),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => LocationProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => WalletProvider(api: api),
-        ),
+        ChangeNotifierProvider(create: (_) => RideProvider(api)),
+        ChangeNotifierProvider(create: (_) => BidsProvider(api)),
+        ChangeNotifierProvider(create: (_) => LocationProvider()),
+        ChangeNotifierProvider(create: (_) => WalletProvider(api)),
       ],
       child: const DozRiderApp(),
     ),

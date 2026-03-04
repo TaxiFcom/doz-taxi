@@ -20,7 +20,7 @@ class DozRiderApp extends StatelessWidget {
           theme: DozTheme.dark,
           darkTheme: DozTheme.dark,
           themeMode: ThemeMode.dark,
-          locale: Locale(auth.locale),
+          locale: auth.locale,
           supportedLocales: const [
             Locale('ar'),
             Locale('en'),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:doz_shared/doz_shared.dart';
+import '../../../widgets/confirm_dialog.dart';
 
 class RecentRidesTable extends StatelessWidget {
   final List<RideModel> rides;
