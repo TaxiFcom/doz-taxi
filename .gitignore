@@ -1,6 +1,52 @@
+# Dependencies
 node_modules/
-backend/data/
-backend/*.db
-.env
-*.log
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Environment
+.env
+*.env.local
+
+# Build
+*.apk
+*.aab
+*.ipa
+*.app
+*.dSYM.zip
+*.dSYM
+
+# Backend
+backend/dev.db
+backend/dev.db-journal
+backend/dist/
+backend/uploads/
+
+# Flutter
+**/ios/Pods/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/.symlinks/
+**/.pub-cache/
+**/pubspec.lock
+
+# Generated
+*.g.dart
+*.freezed.dart
+
+# Memory/session files from build agents
+**/memories/
+**/cron_tracking/

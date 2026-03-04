@@ -1,0 +1,12 @@
+name: doz_taxi_workspace
+description: DOZ Taxi App - Monorepo workspace root
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+# This is the workspace root pubspec.
+# Actual apps and packages are in packages/
+# Use melos to manage the workspace.
+
+dev_dependencies:
+  melos: ^3.4.0
