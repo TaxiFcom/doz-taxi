@@ -221,7 +221,7 @@ class _RideCompleteScreenState extends State<RideCompleteScreen>
                 DozButton(
                   label: isArabic ? 'العودة للرئيسية' : 'Back to Home',
                   onPressed: () {
-                    context.read<RideProvider>().clearCurrentRide();
+                    context.read<RideProvider>().clearRide();
                     context.go(AppRoutes.home);
                   },
                   variant: DozButtonVariant.ghost,

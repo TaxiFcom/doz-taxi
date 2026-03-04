@@ -34,8 +34,8 @@ class _ConfirmRideScreenState extends State<ConfirmRideScreen> {
     final l10n = AppLocalizations.of(context);
     final isArabic = l10n.isArabic;
     final rideProvider = context.watch<RideProvider>();
-    final pickup = rideProvider.pickupLocation;
-    final dropoff = rideProvider.dropoffLocation;
+    final pickup = rideProvider.pickup;
+    final dropoff = rideProvider.dropoff;
 
     return Scaffold(
       backgroundColor: DozColors.primaryDark,

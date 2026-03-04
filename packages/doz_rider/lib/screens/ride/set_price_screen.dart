@@ -20,13 +20,13 @@ class _SetPriceScreenState extends State<SetPriceScreen> {
   @override
   void initState() {
     super.initState();
-    _price = context.read<RideProvider>().suggestedPrice;
+    _price = context.read<RideProvider>().offeredPrice ?? 3.0;
   }
 
   Future<void> _confirmRide() async {
     final rideProvider = context.read<RideProvider>();
-    final pickup = rideProvider.pickupLocation;
-    final dropoff = rideProvider.dropoffLocation;
+    final pickup = rideProvider.pickup;
+    final dropoff = rideProvider.dropoff;
 
     if (pickup == null || dropoff == null) return;
 
@@ -65,7 +65,7 @@ class _SetPriceScreenState extends State<SetPriceScreen> {
 
     final minPrice = AppConstants.minRidePrice;
     final maxPrice = AppConstants.maxRidePrice;
-    final suggested = rideProvider.suggestedPrice;
+    final suggested = rideProvider.offeredPrice ?? 3.0;
 
     return Scaffold(
       backgroundColor: DozColors.primaryDark,
@@ -151,7 +151,7 @@ class _SetPriceScreenState extends State<SetPriceScreen> {
                   step: 0.5,
                   onChanged: (v) {
                     setState(() => _price = v);
-                    rideProvider.setSuggestedPrice(v);
+                    rideProvider.setOfferedPrice(v);
                   },
                 ),
 

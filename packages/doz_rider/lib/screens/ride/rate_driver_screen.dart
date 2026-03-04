@@ -59,7 +59,7 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
       // TODO: submit rating via API
       await Future.delayed(const Duration(seconds: 1));
       if (!mounted) return;
-      context.read<RideProvider>().clearCurrentRide();
+      context.read<RideProvider>().clearRide();
       context.go(AppRoutes.home);
     } catch (e) {
       if (!mounted) return;
@@ -87,7 +87,7 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
         leading: IconButton(
           icon: const Icon(Icons.close_rounded),
           onPressed: () {
-            context.read<RideProvider>().clearCurrentRide();
+            context.read<RideProvider>().clearRide();
             context.go(AppRoutes.home);
           },
           color: DozColors.textPrimary,
@@ -140,10 +140,10 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
                 const SizedBox(height: 32),
 
                 // Star rating
-                DozRatingPicker(
-                  onRatingSelected: (r) => setState(() => _rating = r),
-                  initialRating: _rating,
-                  starSize: 52,
+                DozRatingStars(
+                  rating: _rating.toDouble(),
+                  onRatingChanged: (r) => setState(() => _rating = r.toInt()),
+                  starSize: 40,
                 ),
 
                 const SizedBox(height: 28),
@@ -256,7 +256,7 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
                 DozButton(
                   label: isArabic ? 'تخطي' : 'Skip',
                   onPressed: () {
-                    context.read<RideProvider>().clearCurrentRide();
+                    context.read<RideProvider>().clearRide();
                     context.go(AppRoutes.home);
                   },
                   variant: DozButtonVariant.ghost,
