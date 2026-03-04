@@ -33,19 +33,19 @@ class _MapViewState extends State<MapView> {
   final Set<Marker> _markers = {};
   final Set<Polyline> _polylines = {};
 
-  static const _darkMapStyle = [
-    {"elementType":"geometry","stylers":[{"color":"#1a1a2e"}]},
-    {"elementType":"labels.text.fill","stylers":[{"color":"#9CA3AF"}]},
-    {"elementType":"labels.text.stroke","stylers":[{"color":"#1a1a2e"}]},
-    {"featureType":"administrative","elementType":"geometry","stylers":[{"color":"#374151"}]},
-    {"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#6B7280"}]},
-    {"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#1F2937"}]},
-    {"featureType":"road","elementType":"geometry","stylers":[{"color":"#16213E"}]},
-    {"featureType":"road.arterial","elementType":"geometry","stylers":[{"color":"#1F2937"}]},
-    {"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#374151"}]},
-    {"featureType":"transit","elementType":"geometry","stylers":[{"color":"#1F2937"}]},
-    {"featureType":"water","elementType":"geometry","stylers":[{"color":"#111827"}]}
-  ];
+  static const String _darkMapStyle = '['
+      '{"elementType":"geometry","stylers":[{"color":"#1a1a2e"}]},'
+      '{"elementType":"labels.text.fill","stylers":[{"color":"#9CA3AF"}]},'
+      '{"elementType":"labels.text.stroke","stylers":[{"color":"#1a1a2e"}]},'
+      '{"featureType":"administrative","elementType":"geometry","stylers":[{"color":"#374151"}]},'
+      '{"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#6B7280"}]},'
+      '{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#1F2937"}]},'
+      '{"featureType":"road","elementType":"geometry","stylers":[{"color":"#16213E"}]},'
+      '{"featureType":"road.arterial","elementType":"geometry","stylers":[{"color":"#1F2937"}]},'
+      '{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#374151"}]},'
+      '{"featureType":"transit","elementType":"geometry","stylers":[{"color":"#1F2937"}]},'
+      '{"featureType":"water","elementType":"geometry","stylers":[{"color":"#111827"}]}'
+      ']';
 
   @override
   void initState() {
@@ -111,7 +111,7 @@ class _MapViewState extends State<MapView> {
 
   void _onMapCreated(GoogleMapController controller) {
     _controller = controller;
-    controller.setMapStyle(_darkMapStyle.toString());
+    controller.setMapStyle(_darkMapStyle);
     widget.onMapCreated?.call(controller);
   }
 
@@ -119,13 +119,13 @@ class _MapViewState extends State<MapView> {
   Widget build(BuildContext context) {
     return Consumer<LocationProvider>(
       builder: (_, location, __) {
-        final lat = location.lat;
-        final lng = location.lng;
+        final currentLat = location.lat;
+        final currentLng = location.lng;
 
         return GoogleMap(
           onMapCreated: _onMapCreated,
           initialCameraPosition: CameraPosition(
-            target: LatLng(lat, lng),
+            target: LatLng(currentLat, currentLng),
             zoom: AppConstants.defaultZoom,
           ),
           markers: _markers,
