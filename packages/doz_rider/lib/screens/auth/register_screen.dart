@@ -49,7 +49,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() => _loading = true);
     try {
       await context.read<AuthProvider>().register(
-            name: _nameController.text.trim(),
+            _nameController.text.trim(),
             email: _emailController.text.trim().isEmpty
                 ? null
                 : _emailController.text.trim(),
@@ -277,4 +277,3 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
-

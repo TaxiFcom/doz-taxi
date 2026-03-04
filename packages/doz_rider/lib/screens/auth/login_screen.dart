@@ -41,9 +41,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _loading = true);
     try {
-      await context.read<AuthProvider>().requestOtp(
-            phone: _phoneController.text.trim(),
-            countryCode: _selectedCode,
+      await context.read<AuthProvider>().sendOtp(
+            _phoneController.text.trim(),
+            _selectedCode,
           );
       if (!mounted) return;
       context.push(AppRoutes.otp, extra: {
@@ -330,4 +330,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:doz_shared/doz_shared.dart';
@@ -28,6 +29,10 @@ class _OtpScreenState extends State<OtpScreen> {
   Timer? _resendTimer;
   String _otp = '';
 
+  final List<TextEditingController> _controllers =
+      List.generate(6, (_) => TextEditingController());
+  final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
+
   @override
   void initState() {
     super.initState();
@@ -50,7 +55,30 @@ class _OtpScreenState extends State<OtpScreen> {
   @override
   void dispose() {
     _resendTimer?.cancel();
+    for (final c in _controllers) {
+      c.dispose();
+    }
+    for (final f in _focusNodes) {
+      f.dispose();
+    }
     super.dispose();
+  }
+
+  void _onDigitChanged(int index, String value) {
+    if (value.length == 1) {
+      if (index < 5) {
+        _focusNodes[index + 1].requestFocus();
+      } else {
+        _focusNodes[index].unfocus();
+      }
+    } else if (value.isEmpty && index > 0) {
+      _focusNodes[index - 1].requestFocus();
+    }
+    final otp = _controllers.map((c) => c.text).join();
+    setState(() => _otp = otp);
+    if (otp.length == 6) {
+      _verifyOtp(otp);
+    }
   }
 
   Future<void> _verifyOtp(String otp) async {
@@ -58,11 +86,12 @@ class _OtpScreenState extends State<OtpScreen> {
 
     setState(() => _loading = true);
     try {
-      final result =
-          await context.read<AuthProvider>().verifyOtp(otp: otp);
+      final result = await context
+          .read<AuthProvider>()
+          .verifyOtp(widget.phone, widget.countryCode, otp);
       if (!mounted) return;
 
-      if (result.isNewUser) {
+      if (result['isNewUser'] == true) {
         context.go(AppRoutes.register, extra: {
           'phone': widget.phone,
         });
@@ -86,10 +115,9 @@ class _OtpScreenState extends State<OtpScreen> {
     if (_resendCountdown > 0 || _resending) return;
     setState(() => _resending = true);
     try {
-      await context.read<AuthProvider>().requestOtp(
-            phone: widget.phone,
-            countryCode: widget.countryCode,
-          );
+      await context
+          .read<AuthProvider>()
+          .sendOtp(widget.phone, widget.countryCode);
       _startResendTimer();
     } catch (e) {
       if (!mounted) return;
@@ -172,14 +200,48 @@ class _OtpScreenState extends State<OtpScreen> {
 
                 const SizedBox(height: 48),
 
-                // OTP Field
-                DozOtpField(
-                  length: 6,
-                  onCompleted: (otp) {
-                    setState(() => _otp = otp);
-                    _verifyOtp(otp);
-                  },
-                  onChanged: (otp) => setState(() => _otp = otp),
+                // OTP Fields — 6 individual digit boxes
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: List.generate(6, (index) {
+                    return SizedBox(
+                      width: 44,
+                      height: 54,
+                      child: TextField(
+                        controller: _controllers[index],
+                        focusNode: _focusNodes[index],
+                        textAlign: TextAlign.center,
+                        keyboardType: TextInputType.number,
+                        maxLength: 1,
+                        style: DozTextStyles.sectionTitle(isArabic: false)
+                            .copyWith(fontSize: 22),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        decoration: InputDecoration(
+                          counterText: '',
+                          fillColor: DozColors.cardDark,
+                          filled: true,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide:
+                                const BorderSide(color: DozColors.borderDark),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide:
+                                const BorderSide(color: DozColors.borderDark),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                                color: DozColors.primaryGreen, width: 1.5),
+                          ),
+                        ),
+                        onChanged: (v) => _onDigitChanged(index, v),
+                      ),
+                    );
+                  }),
                 ),
 
                 const SizedBox(height: 40),
@@ -253,4 +315,3 @@ class _OtpScreenState extends State<OtpScreen> {
     );
   }
 }
-

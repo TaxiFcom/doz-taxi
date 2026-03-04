@@ -31,8 +31,17 @@ class _RideDetailScreenState extends State<RideDetailScreen> {
       _error = null;
     });
     try {
-      final ride =
-          await context.read<RideProvider>().getRideDetail(widget.rideId);
+      // Look up from ride history first, then reload history if needed
+      final rideProvider = context.read<RideProvider>();
+      var ride = rideProvider.rideHistory
+          .where((r) => r.id == widget.rideId)
+          .firstOrNull;
+      if (ride == null) {
+        await rideProvider.loadRideHistory();
+        ride = rideProvider.rideHistory
+            .where((r) => r.id == widget.rideId)
+            .firstOrNull;
+      }
       setState(() {
         _ride = ride;
         _loading = false;
@@ -69,7 +78,12 @@ class _RideDetailScreenState extends State<RideDetailScreen> {
       body: _loading
           ? const Center(child: DozLoading())
           : _error != null
-              ? DozErrorState(message: _error!, onRetry: _loadRide)
+              ? DozEmptyState(
+                  icon: Icons.error_outline,
+                  title: _error!,
+                  actionLabel: 'Retry',
+                  onAction: _loadRide,
+                )
               : _ride == null
                   ? DozEmptyState(
                       icon: Icons.receipt_long_rounded,
