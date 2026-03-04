@@ -1,0 +1,306 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Switch datasource to postgresql for production:
+// datasource db {
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")
+// }
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  RIDER
+  DRIVER
+  ADMIN
+}
+
+enum RideStatus {
+  PENDING
+  BIDDING
+  ACCEPTED
+  DRIVER_ARRIVING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum BidStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum PaymentMethod {
+  CASH
+  WALLET
+  CARD
+}
+
+enum PaymentType {
+  RIDE_PAYMENT
+  WALLET_TOPUP
+  COMMISSION
+  REFUND
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum TransactionType {
+  CREDIT
+  DEBIT
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String?   @unique
+  phone         String    @unique
+  password_hash String?
+  role          Role      @default(RIDER)
+  avatar_url    String?
+  lang          String    @default("ar")
+  is_active     Boolean   @default(true)
+  is_verified   Boolean   @default(false)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  driver              Driver?
+  rides_as_rider      Ride[]               @relation("RiderRides")
+  ratings_given       Rating[]             @relation("RatingsGiven")
+  ratings_received    Rating[]             @relation("RatingsReceived")
+  payments            Payment[]
+  wallet              Wallet?
+  notifications       Notification[]
+  support_tickets     SupportTicket[]
+  refresh_tokens      RefreshToken[]
+  otps                Otp[]
+}
+
+model RefreshToken {
+  id         String   @id @default(uuid())
+  user_id    String
+  token      String   @unique
+  expires_at DateTime
+  created_at DateTime @default(now())
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model Otp {
+  id         String   @id @default(uuid())
+  user_id    String?
+  phone      String
+  code       String
+  expires_at DateTime
+  is_used    Boolean  @default(false)
+  created_at DateTime @default(now())
+  user       User?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
+}
+
+model Driver {
+  id              String   @id @default(uuid())
+  user_id         String   @unique
+  license_number  String   @unique
+  vehicle_type_id String?
+  vehicle_model   String
+  vehicle_color   String
+  plate_number    String   @unique
+  lat             Float    @default(0)
+  lng             Float    @default(0)
+  heading         Float    @default(0)
+  is_online       Boolean  @default(false)
+  is_busy         Boolean  @default(false)
+  rating          Float    @default(5.0)
+  total_rides     Int      @default(0)
+  total_earnings  Float    @default(0)
+  commission_rate Float    @default(0.15)
+  is_approved     Boolean  @default(false)
+  created_at      DateTime @default(now())
+
+  user         User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  vehicle_type VehicleType?  @relation(fields: [vehicle_type_id], references: [id])
+  rides        Ride[]        @relation("DriverRides")
+  bids         Bid[]
+}
+
+model VehicleType {
+  id        String  @id @default(uuid())
+  name_ar   String
+  name_en   String
+  icon      String  @default("car")
+  base_fare Float   @default(2.0)
+  per_km    Float   @default(0.5)
+  per_min   Float   @default(0.1)
+  min_fare  Float   @default(3.0)
+  is_active Boolean @default(true)
+
+  drivers Driver[]
+}
+
+model Ride {
+  id               String        @id @default(uuid())
+  rider_id         String
+  driver_id        String?
+  status           RideStatus    @default(PENDING)
+  pickup_lat       Float
+  pickup_lng       Float
+  pickup_address   String
+  dropoff_lat      Float
+  dropoff_lng      Float
+  dropoff_address  String
+  suggested_price  Float?
+  final_price      Float?
+  distance_km      Float?
+  duration_min     Float?
+  commission_amount Float?
+  payment_method   PaymentMethod @default(CASH)
+  rated_by_rider   Boolean       @default(false)
+  rated_by_driver  Boolean       @default(false)
+  started_at       DateTime?
+  completed_at     DateTime?
+  cancelled_at     DateTime?
+  cancel_reason    String?
+  promo_code       String?
+  discount_amount  Float?
+  vehicle_type_id  String?
+  created_at       DateTime      @default(now())
+
+  rider          User            @relation("RiderRides", fields: [rider_id], references: [id])
+  driver         Driver?         @relation("DriverRides", fields: [driver_id], references: [id])
+  bids           Bid[]
+  ratings        Rating[]
+  payments       Payment[]
+  support_tickets SupportTicket[]
+}
+
+model Bid {
+  id         String    @id @default(uuid())
+  ride_id    String
+  driver_id  String
+  amount     Float
+  status     BidStatus @default(PENDING)
+  note       String?
+  eta_min    Int?
+  created_at DateTime  @default(now())
+
+  ride   Ride   @relation(fields: [ride_id], references: [id], onDelete: Cascade)
+  driver Driver @relation(fields: [driver_id], references: [id], onDelete: Cascade)
+}
+
+model Rating {
+  id          String   @id @default(uuid())
+  ride_id     String
+  from_user_id String
+  to_user_id  String
+  stars       Int
+  tags        String?
+  comment     String?
+  created_at  DateTime @default(now())
+
+  ride      Ride @relation(fields: [ride_id], references: [id], onDelete: Cascade)
+  from_user User @relation("RatingsGiven", fields: [from_user_id], references: [id])
+  to_user   User @relation("RatingsReceived", fields: [to_user_id], references: [id])
+}
+
+model Payment {
+  id         String        @id @default(uuid())
+  ride_id    String?
+  user_id    String
+  amount     Float
+  type       PaymentType
+  method     String
+  status     PaymentStatus @default(PENDING)
+  reference  String?       @unique
+  created_at DateTime      @default(now())
+
+  ride Ride? @relation(fields: [ride_id], references: [id])
+  user User  @relation(fields: [user_id], references: [id])
+}
+
+model Wallet {
+  id         String   @id @default(uuid())
+  user_id    String   @unique
+  balance    Float    @default(0)
+  currency   String   @default("JOD")
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user         User                @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  transactions WalletTransaction[]
+}
+
+model WalletTransaction {
+  id          String          @id @default(uuid())
+  wallet_id   String
+  amount      Float
+  type        TransactionType
+  description String
+  reference   String?
+  created_at  DateTime        @default(now())
+
+  wallet Wallet @relation(fields: [wallet_id], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id         String   @id @default(uuid())
+  user_id    String
+  title_ar   String
+  title_en   String
+  body_ar    String
+  body_en    String
+  type       String
+  data_json  String?
+  is_read    Boolean  @default(false)
+  created_at DateTime @default(now())
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model SupportTicket {
+  id         String       @id @default(uuid())
+  user_id    String
+  ride_id    String?
+  subject    String
+  message    String
+  status     TicketStatus @default(OPEN)
+  created_at DateTime     @default(now())
+
+  user User  @relation(fields: [user_id], references: [id])
+  ride Ride? @relation(fields: [ride_id], references: [id])
+}
+
+model PromoCode {
+  id             String       @id @default(uuid())
+  code           String       @unique
+  discount_type  DiscountType
+  discount_value Float
+  max_uses       Int          @default(100)
+  current_uses   Int          @default(0)
+  valid_from     DateTime
+  valid_until    DateTime
+  is_active      Boolean      @default(true)
+  created_at     DateTime     @default(now())
+}
